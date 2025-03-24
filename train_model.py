@@ -9,8 +9,10 @@ from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropou
 from tensorflow.keras.utils import to_categorical
 import pickle
 
-# Define dataset path (Change this to your Google Drive path if needed)
-dataset_path = "dataset/"
+from google.colab import drive
+drive.mount('/content/drive')
+
+dataset_path = "https://drive.google.com/drive/folders/1NGMg21f-WxpzgHWjM6OlAPV1ol1DcQY7?usp=sharing"
 
 def load_data(dataset_path):
     X, Y = [], []
