@@ -24,4 +24,4 @@ def preprocess_dataset(dataset_path, output_file):
         pickle.dump((np.array(data), np.array(labels)), f)
 
 if __name__ == "__main__":
-    preprocess_dataset("/content/drive/MyDrive/dataset", "dataset.pkl")
+    preprocess_dataset("https://drive.google.com/drive/folders/1NGMg21f-WxpzgHWjM6OlAPV1ol1DcQY7?usp=drive_link", "dataset.pkl")
