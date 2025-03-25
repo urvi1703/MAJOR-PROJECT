@@ -4,6 +4,7 @@ import numpy as np
 import tempfile
 import matplotlib.pyplot as plt
 from detect import classify_audio
+from utils import plot_spectrogram
 
 st.title("Drone Detection using Acoustic Signatures")
 
