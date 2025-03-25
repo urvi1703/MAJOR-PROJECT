@@ -2,6 +2,7 @@ import librosa
 import numpy as np
 import tensorflow as tf
 import pickle
+from utils import extract_features
 
 def classify_audio(audio_path, model_path="drone_model.h5", encoder_path="dataset.pkl", segment_duration=1):
     model = tf.keras.models.load_model(model_path)
