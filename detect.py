@@ -6,12 +6,12 @@ import pickle
 def classify_audio(audio_path, model_path="drone_model.h5", encoder_path="dataset.pkl"):
     model = tf.keras.models.load_model(model_path)
     with open(encoder_path, "rb") as f:
-        _, labels = pickle.load(f)
+        _, labels, _ = pickle.load(f)
     
-    features = extract_mfcc(audio_path)
-    features = np.expand_dims(features, axis=0)
+    mfcc, _ = extract_features(audio_path)
+    mfcc = np.expand_dims(mfcc, axis=(0, -1))
     
-    prediction = model.predict(features)
+    prediction = model.predict(mfcc)
     class_idx = np.argmax(prediction)
     return labels[class_idx]
 
