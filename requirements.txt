@@ -3,5 +3,6 @@ librosa
 numpy
 scikit-learn
 streamlit
+sounddevice
 pickle5
 matplotlib
