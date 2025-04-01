@@ -6,3 +6,4 @@ streamlit
 pickle5
 matplotlib
 sounddevice
+soundfile
