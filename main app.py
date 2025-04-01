@@ -1,8 +1,8 @@
 import streamlit as st
 import numpy as np
 import tensorflow as tf
-import sounddevice as sd
-import soundfile as sf
+#import sounddevice as sd
+#import soundfile as sf
 from utils import extract_features, plot_spectrogram
 
 st.title("🎤 Drone Detection System")
@@ -46,3 +46,40 @@ if st.button("🎙 Record & Detect"):
 
     st.write(f"### 🔍 Prediction: {predicted_label}")
     plot_spectrogram("realtime_audio.wav")
+
+import pyaudio
+import wave
+
+# Initialize PyAudio
+p = pyaudio.PyAudio()
+
+# Open stream for recording
+stream = p.open(format=pyaudio.paInt16,
+                channels=1,
+                rate=44100,
+                input=True,
+                frames_per_buffer=1024)
+
+print("Recording...")
+
+frames = []
+
+# Record audio for 5 seconds
+for _ in range(0, int(44100 / 1024 * 5)):
+    data = stream.read(1024)
+    frames.append(data)
+
+print("Finished recording.")
+
+# Stop and close the stream
+stream.stop_stream()
+stream.close()
+p.terminate()
+
+# Save the audio to a file
+with wave.open("output.wav", 'wb') as wf:
+    wf.setnchannels(1)
+    wf.setsampwidth(p.get_sample_size(pyaudio.paInt16))
+    wf.setframerate(44100)
+    wf.writeframes(b''.join(frames))
+
