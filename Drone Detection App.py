@@ -10,7 +10,7 @@ import tempfile
 from utils import extract_mfcc, plot_spectrogram
 
 # Load the trained model
-MODEL_PATH = "drone_detection_model.h5"
+MODEL_PATH = "drone_cnn_model.h5"
 model = tf.keras.models.load_model(MODEL_PATH)
 
 def predict_audio(audio_file):
