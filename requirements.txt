@@ -4,5 +4,6 @@ numpy
 scikit-learn
 streamlit
 matplotlib
-sounddevice
-soundfile
+pyaudio
+##sounddevice
+##soundfile
