@@ -7,6 +7,7 @@ import tensorflow as tf
 import sounddevice as sd
 import soundfile as sf
 import tempfile
+import pyaudio
 from utils import extract_mfcc, plot_spectrogram
 
 # Load the trained model
