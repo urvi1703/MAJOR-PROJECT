@@ -2,6 +2,7 @@ import librosa
 import numpy as np
 import librosa.display
 import matplotlib.pyplot as plt
+import streamlit as st
 
 def extract_features(audio_path, n_mfcc=40, segment_length=1):
     y, sr = librosa.load(audio_path, sr=22050)
@@ -24,3 +25,4 @@ def plot_spectrogram(audio_path):
     plt.colorbar(format='%+2.0f dB')
     plt.title("Spectrogram")
     plt.show()
+
