@@ -9,7 +9,7 @@ def classify_audio(audio_path, model_path="drone_model.h5", encoder_path="datase
     with open(encoder_path, "rb") as f:
         _, labels, _ = pickle.load(f)
     
-    y, sr = librosa.load(audio_path, sr=22050)
+    y, sr = librosa.load(audio_path, sr=16000)
     total_duration = librosa.get_duration(y=y, sr=sr)
     
     segment_samples = segment_duration * sr
