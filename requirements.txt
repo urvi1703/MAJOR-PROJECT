@@ -6,5 +6,5 @@ streamlit
 h5py
 matplotlib
 ##pyaudio
-##sounddevice
+sounddevice
 soundfile
