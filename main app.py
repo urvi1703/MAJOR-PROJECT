@@ -6,10 +6,9 @@ import soundfile as sf
 from utils import extract_features, plot_spectrogram
 
 st.title("🎤 Drone Detection System")
+import tensorflow as tf
 
-from tensorflow.keras.models import load_model
-
-model = load_model("drone_cnn_model.h5")  # No folder path needed
+model = tf.keras.models.load_model("drone_cnn_model.h5")  # Remove "models/" if not in a folder
 
 # File Upload
 uploaded_file = st.file_uploader("Upload an Audio File", type=["wav", "mp3"])
