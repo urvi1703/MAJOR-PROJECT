@@ -22,7 +22,7 @@ def extract_dataset(zip_path, extract_to="data"):
 # Feature extraction function
 def extract_features(audio_path, n_mfcc=40):
     try:
-        y, sr = librosa.load(audio_path, sr=22050)
+        y, sr = librosa.load(audio_path, sr=16000)
         mfcc = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=n_mfcc)
         spectrogram = librosa.amplitude_to_db(librosa.feature.melspectrogram(y=y, sr=sr), ref=np.max)
         return np.mean(mfcc.T, axis=0), spectrogram
@@ -54,7 +54,7 @@ def preprocess_dataset(dataset_path, output_file="dataset.pkl"):
 
 # Plot a sample spectrogram
 def plot_spectrogram(audio_path):
-    y, sr = librosa.load(audio_path, sr=22050)
+    y, sr = librosa.load(audio_path, sr=16000)
     S = librosa.feature.melspectrogram(y=y, sr=sr)
     S_db = librosa.amplitude_to_db(S, ref=np.max)
     
