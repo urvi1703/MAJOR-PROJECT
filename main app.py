@@ -47,14 +47,12 @@ if st.button("🎙 Record & Detect"):
     st.write(f"### 🔍 Prediction: {predicted_label}")
     plot_spectrogram("realtime_audio.wav")
 
-import pyaudio
-import wave
+import soundfile as sf
 
-# Initialize PyAudio
-p = pyaudio.PyAudio()
+data, samplerate = sf.read("audio_file.wav")
 
 # Open stream for recording
-stream = p.open(format=pyaudio.paInt16,
+stream = p.open(format=sf.paInt16,
                 channels=1,
                 rate=44100,
                 input=True,
