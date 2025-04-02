@@ -51,7 +51,7 @@ import sounddevice as sd
 import soundfile as sf
 
 # Recording parameters
-samplerate = 44100  # Sample rate
+samplerate = 16000  # Sample rate
 duration = 5  # Duration in seconds
 channels = 1  # Mono audio
 
