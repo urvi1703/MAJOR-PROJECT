@@ -9,7 +9,7 @@ st.title("🎤 Drone Detection System")
 
 from tensorflow.keras.models import load_model
 
-model = load_model("drone_detection.h5")  # No folder path needed
+model = load_model("drone_cnn_model.h5")  # No folder path needed
 
 # File Upload
 uploaded_file = st.file_uploader("Upload an Audio File", type=["wav", "mp3"])
