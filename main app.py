@@ -47,37 +47,24 @@ if st.button("🎙 Record & Detect"):
     st.write(f"### 🔍 Prediction: {predicted_label}")
     plot_spectrogram("realtime_audio.wav")
 
+import sounddevice as sd
 import soundfile as sf
 
-data, samplerate = sf.read("audio_file.wav")
-
-# Open stream for recording
-stream = p.open(format=sf.paInt16,
-                channels=1,
-                rate=44100,
-                input=True,
-                frames_per_buffer=1024)
+# Recording parameters
+samplerate = 44100  # Sample rate
+duration = 5  # Duration in seconds
+channels = 1  # Mono audio
 
 print("Recording...")
 
-frames = []
-
-# Record audio for 5 seconds
-for _ in range(0, int(44100 / 1024 * 5)):
-    data = stream.read(1024)
-    frames.append(data)
+# Record audio
+data = sd.rec(int(samplerate * duration), samplerate=samplerate, channels=channels, dtype='int16')
+sd.wait()  # Wait for recording to complete
 
 print("Finished recording.")
 
-# Stop and close the stream
-stream.stop_stream()
-stream.close()
-p.terminate()
+# Save the recorded audio
+sf.write("output.wav", data, samplerate)
 
-# Save the audio to a file
-with wave.open("output.wav", 'wb') as wf:
-    wf.setnchannels(1)
-    wf.setsampwidth(p.get_sample_size(pyaudio.paInt16))
-    wf.setframerate(44100)
-    wf.writeframes(b''.join(frames))
+print("Audio recorded and saved as 'output.wav'.")
 
