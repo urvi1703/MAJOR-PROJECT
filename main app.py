@@ -1,10 +1,11 @@
 import streamlit as st
 import numpy as np
 import tensorflow as tf
+pip install sounddevice
 import sounddevice as sd
 import soundfile as sf
 from utils import extract_features, plot_spectrogram
-#import pyaudio as pa
+import pyaudio as pa
 
 st.title("🎤 Drone Detection System")
 import tensorflow as tf
