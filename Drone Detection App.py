@@ -5,7 +5,7 @@ import librosa.display
 import matplotlib.pyplot as plt
 import tensorflow as tf
 #import sounddevice as sd
-#import soundfile as sf
+import soundfile as sf
 import tempfile
 import pyaudio
 from utils import extract_mfcc, plot_spectrogram
