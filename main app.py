@@ -7,7 +7,9 @@ from utils import extract_features, plot_spectrogram
 
 st.title("🎤 Drone Detection System")
 
-model = tf.keras.models.load_model("models/drone_detection_model.h5")
+from tensorflow.keras.models import load_model
+
+model = load_model("drone_detection.h5")  # No folder path needed
 
 # File Upload
 uploaded_file = st.file_uploader("Upload an Audio File", type=["wav", "mp3"])
