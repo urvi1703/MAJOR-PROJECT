@@ -4,7 +4,7 @@ import librosa
 import librosa.display
 import matplotlib.pyplot as plt
 import tensorflow as tf
-#import sounddevice as sd
+import sounddevice as sd
 import soundfile as sf
 import tempfile
 import pyaudio
