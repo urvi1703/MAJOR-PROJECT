@@ -9,8 +9,6 @@ import tensorflow as tf
 import tempfile
 import pyaudio
 from utils import extract_mfcc, plot_spectrogram
-pip install pyaudio
-pip install soundfile
 
 # Load the trained model
 MODEL_PATH = "drone_cnn_model.h5"
