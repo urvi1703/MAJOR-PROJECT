@@ -9,7 +9,7 @@ def extract_features(audio_path, n_mfcc=40, segment_length=1):
     Extracts MFCC features and spectrogram from an audio file.
     Splits long audio into 1-second segments and processes each.
     """
-    y, sr = librosa.load(audio_path, sr=22050)
+    y, sr = librosa.load(audio_path, sr=16000)
     segments = []
     
     for i in range(0, len(y), sr * segment_length):
@@ -26,7 +26,7 @@ def plot_spectrogram(audio_path):
     """
     Generates and displays a spectrogram of an audio file.
     """
-    y, sr = librosa.load(audio_path, sr=22050)
+    y, sr = librosa.load(audio_path, sr=16000)
     S = librosa.feature.melspectrogram(y=y, sr=sr)
     S_db = librosa.amplitude_to_db(S, ref=np.max)
 
