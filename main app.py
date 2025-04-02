@@ -4,7 +4,7 @@ import tensorflow as tf
 import sounddevice as sd
 import soundfile as sf
 from utils import extract_features, plot_spectrogram
-import pyaudio as pa
+#import pyaudio as pa
 
 st.title("🎤 Drone Detection System")
 import tensorflow as tf
