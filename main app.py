@@ -7,7 +7,6 @@ from utils import extract_features, plot_spectrogram
 
 st.title("🎤 Drone Detection System")
 import tensorflow as tf
-model = tf.keras.models.load_model("MAJOR-PROJECT/drone_cnn_model.h5")
 model = tf.keras.models.load_model("drone_cnn_model.h5")  # Remove "models/" if not in a folder
 
 # File Upload
