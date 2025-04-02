@@ -3,6 +3,7 @@ librosa
 numpy
 scikit-learn
 streamlit
+h5py
 matplotlib
 pyaudio
 ##sounddevice
