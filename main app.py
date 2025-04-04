@@ -49,17 +49,27 @@ if st.button("🎙 Record & Detect"):
     plot_spectrogram("realtime_audio.wav")
 
 
-import sounddevice as sd
-import numpy as np
+import streamlit as st
 import soundfile as sf
+import librosa
+import numpy as np
 
-# Record audio
-duration = 5  # seconds
+uploaded_file = st.file_uploader("Upload a .wav file", type=["wav"])
+
+if uploaded_file is not None:
+    audio_data, samplerate = sf.read(uploaded_file)
+    st.audio(uploaded_file)
+    st.write("Audio data shape:", audio_data.shape)
+    # Proceed with your prediction here...
+
+# Run this locally, then upload to the web app
+import sounddevice as sd
+
+duration = 5
 samplerate = 16000
-print("Recording...")
-audio = sd.rec(int(duration * samplerate), samplerate=samplerate, channels=1, dtype=np.int16)
-sd.wait()
-sf.write("output.wav", audio, samplerate)
-print("Recording complete.")
+channels = 1
 
+recording = sd.rec(int(duration * samplerate), samplerate=samplerate, channels=channels)
+sd.wait()
+sf.write("output.wav", recording, samplerate)
 
