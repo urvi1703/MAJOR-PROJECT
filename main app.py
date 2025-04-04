@@ -1,75 +1,84 @@
 import streamlit as st
 import numpy as np
+import librosa
+import librosa.display
+import matplotlib.pyplot as plt
 import tensorflow as tf
-import sounddevice as sd
+import os
 import soundfile as sf
-from utils import extract_features, plot_spectrogram
-import pyaudio as pa
 
-st.title("🎤 Drone Detection System")
-import tensorflow as tf
-model = tf.keras.models.load_model("drone_cnn_model.h5")  # Remove "models/" if not in a folder
+# Title
+st.title("🚁 Drone Detection using Audio Classification")
 
-# File Upload
-uploaded_file = st.file_uploader("Upload an Audio File", type=["wav", "mp3"])
+# Load your trained model
+@st.cache_resource
+def load_model():
+    model = tf.keras.models.load_model("drone_cnn_model.h5")  # Put your actual model name
+    return model
 
-if uploaded_file is not None:
-    with open("temp_audio.wav", "wb") as f:
+model = load_model()
+
+# Preprocessing function
+def extract_features(file_path):
+    y, sr = librosa.load(file_path, sr=16000)
+    mfccs = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=40)
+    mfccs_processed = np.mean(mfccs.T, axis=0)
+    return mfccs_processed.reshape(1, -1)
+
+# Visualization function
+def show_visuals(file_path):
+    y, sr = librosa.load(file_path, sr=16000)
+    
+    st.subheader("Waveform:")
+    fig1, ax1 = plt.subplots()
+    librosa.display.waveshow(y, sr=sr, ax=ax1)
+    st.pyplot(fig1)
+
+    st.subheader("Spectrogram:")
+    fig2, ax2 = plt.subplots()
+    stft = librosa.amplitude_to_db(np.abs(librosa.stft(y)), ref=np.max)
+    img = librosa.display.specshow(stft, sr=sr, x_axis='time', y_axis='log', ax=ax2)
+    fig2.colorbar(img, ax=ax2, format="%+2.0f dB")
+    st.pyplot(fig2)
+
+# File uploader
+uploaded_file = st.file_uploader("Upload a WAV file", type=["wav"])
+
+if uploaded_file:
+    file_path = os.path.join("temp.wav")
+    with open(file_path, "wb") as f:
         f.write(uploaded_file.getbuffer())
 
-    st.audio("temp_audio.wav", format="audio/wav")
-
-    features, _ = extract_features("temp_audio.wav")[0]
-    features = np.expand_dims(features, axis=0)
-
+    show_visuals(file_path)
+    features = extract_features(file_path)
     prediction = model.predict(features)
-    predicted_label = "Drone" if np.argmax(prediction) == 1 else "Background Noise"
 
-    st.write(f"### 🔍 Prediction: {predicted_label}")
-    plot_spectrogram("temp_audio.wav")
+    label = "Drone" if prediction[0][0] > 0.5 else "Background Noise"
+    st.success(f"🧠 Prediction: **{label}** (Confidence: {prediction[0][0]:.2f})")
 
-# Real-Time Recording
-if st.button("🎙 Record & Detect"):
-    duration = 3  # seconds
-    samplerate = 16000
-    st.write("Recording... Speak now!")
-    audio = sd.rec(int(samplerate * duration), samplerate=samplerate, channels=1)
-    sd.wait()
+else:
+    st.info("Waiting for file upload...")
 
-    sf.write("realtime_audio.wav", audio, samplerate)
-    st.write("Recording saved! Processing...")
+# Optional: Audio Recorder (only works on local machines, not Codespaces)
+if st.checkbox("Use Microphone (local only)"):
+    try:
+        import sounddevice as sd
 
-    features, _ = extract_features("realtime_audio.wav")[0]
-    features = np.expand_dims(features, axis=0)
+        duration = 5  # seconds
+        fs = 16000
 
-    prediction = model.predict(features)
-    predicted_label = "Drone" if np.argmax(prediction) == 1 else "Background Noise"
+        st.write("🎙️ Click the button to record")
+        if st.button("Record Now"):
+            st.write("Recording...")
+            audio = sd.rec(int(duration * fs), samplerate=fs, channels=1)
+            sd.wait()
+            sf.write("mic_input.wav", audio, fs)
+            st.write("Recording complete")
 
-    st.write(f"### 🔍 Prediction: {predicted_label}")
-    plot_spectrogram("realtime_audio.wav")
-
-
-import streamlit as st
-import soundfile as sf
-import librosa
-import numpy as np
-
-uploaded_file = st.file_uploader("Upload a .wav file", type=["wav"])
-
-if uploaded_file is not None:
-    audio_data, samplerate = sf.read(uploaded_file)
-    st.audio(uploaded_file)
-    st.write("Audio data shape:", audio_data.shape)
-    # Proceed with your prediction here...
-
-# Run this locally, then upload to the web app
-import sounddevice as sd
-
-duration = 5
-samplerate = 16000
-channels = 1
-
-recording = sd.rec(int(duration * samplerate), samplerate=samplerate, channels=channels)
-sd.wait()
-sf.write("output.wav", recording, samplerate)
-
+            show_visuals("mic_input.wav")
+            features = extract_features("mic_input.wav")
+            prediction = model.predict(features)
+            label = "Drone" if prediction[0][0] > 0.5 else "Background Noise"
+            st.success(f"🧠 Prediction: **{label}** (Confidence: {prediction[0][0]:.2f})")
+    except Exception as e:
+        st.warning(f"Microphone access failed: {e}")
