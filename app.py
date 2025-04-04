@@ -13,22 +13,30 @@ st.title("🚁 Drone Detection using Audio Classification")
 # Load your trained model
 @st.cache_resource
 def load_model():
-    model = tf.keras.models.load_model("drone_cnn_model.h5")  # Put your actual model name
+    model = tf.keras.models.load_model("drone_cnn_model.h5")  # Your model file
     return model
 
 model = load_model()
 
-# Preprocessing function
+# Preprocessing function (Fixed)
 def extract_features(file_path):
     y, sr = librosa.load(file_path, sr=16000)
     mfccs = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=40)
-    mfccs_processed = np.mean(mfccs.T, axis=0)
-    return mfccs_processed.reshape(1, -1)
+
+    # Ensure shape (40, 32)
+    if mfccs.shape[1] < 32:
+        mfccs = np.pad(mfccs, ((0, 0), (0, 32 - mfccs.shape[1])), mode='constant')
+    else:
+        mfccs = mfccs[:, :32]
+
+    mfccs = mfccs.reshape((40, 32, 1))      # Add channel dimension
+    mfccs = np.expand_dims(mfccs, axis=0)  # Add batch dimension => (1, 40, 32, 1)
+    return mfccs
 
 # Visualization function
 def show_visuals(file_path):
     y, sr = librosa.load(file_path, sr=16000)
-    
+
     st.subheader("Waveform:")
     fig1, ax1 = plt.subplots()
     librosa.display.waveshow(y, sr=sr, ax=ax1)
@@ -55,11 +63,10 @@ if uploaded_file:
 
     label = "Drone" if prediction[0][0] > 0.5 else "Background Noise"
     st.success(f"🧠 Prediction: **{label}** (Confidence: {prediction[0][0]:.2f})")
-
 else:
     st.info("Waiting for file upload...")
 
-# Optional: Audio Recorder (only works on local machines, not Codespaces)
+# Optional: Audio Recorder (local only)
 if st.checkbox("Use Microphone (local only)"):
     try:
         import sounddevice as sd
