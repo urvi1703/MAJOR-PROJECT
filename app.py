@@ -7,33 +7,34 @@ import tensorflow as tf
 import os
 import soundfile as sf
 
-# Title
+# Streamlit Title
 st.title("🚁 Drone Detection using Audio Classification")
 
-# Load your trained model
+# Load Model
 @st.cache_resource
 def load_model():
-    model = tf.keras.models.load_model("drone_cnn_model.h5")  # Your model file
+    model = tf.keras.models.load_model("drone_cnn_model.h5")
     return model
 
 model = load_model()
 
-# Preprocessing function (Fixed)
+# ✔️ Correct Feature Extraction
 def extract_features(file_path):
     y, sr = librosa.load(file_path, sr=16000)
-    mfccs = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=40)
+    mfcc = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=40)
 
-    # Ensure shape (40, 32)
-    if mfccs.shape[1] < 32:
-        mfccs = np.pad(mfccs, ((0, 0), (0, 32 - mfccs.shape[1])), mode='constant')
+    # Pad or truncate to ensure shape (40, 32)
+    if mfcc.shape[1] < 32:
+        pad_width = 32 - mfcc.shape[1]
+        mfcc = np.pad(mfcc, ((0, 0), (0, pad_width)), mode='constant')
     else:
-        mfccs = mfccs[:, :32]
+        mfcc = mfcc[:, :32]
 
-    mfccs = mfccs.reshape((40, 32, 1))      # Add channel dimension
-    mfccs = np.expand_dims(mfccs, axis=0)  # Add batch dimension => (1, 40, 32, 1)
-    return mfccs
+    # Final reshape: (1, 40, 32, 1)
+    mfcc = mfcc.reshape(1, 40, 32, 1)
+    return mfcc
 
-# Visualization function
+# ✔️ Visualization
 def show_visuals(file_path):
     y, sr = librosa.load(file_path, sr=16000)
 
@@ -49,29 +50,44 @@ def show_visuals(file_path):
     fig2.colorbar(img, ax=ax2, format="%+2.0f dB")
     st.pyplot(fig2)
 
-# File uploader
+# ✔️ Prediction Logic
+def predict_and_display(file_path):
+    features = extract_features(file_path)
+    st.write("✅ Feature shape:", features.shape)
+
+    prediction = model.predict(features)
+
+    if prediction.shape[1] == 2:
+        label_map = ["Background Noise", "Drone"]
+        predicted_index = np.argmax(prediction)
+        label = label_map[predicted_index]
+        confidence = prediction[0][predicted_index]
+    else:
+        confidence = prediction[0][0]
+        label = "Drone" if confidence > 0.5 else "Background Noise"
+        confidence = confidence if confidence > 0.5 else 1 - confidence
+
+    st.success(f"🧠 Prediction: **{label}** (Confidence: {confidence*100:.2f}%)")
+
+# ✔️ File Upload
 uploaded_file = st.file_uploader("Upload a WAV file", type=["wav"])
 
 if uploaded_file:
-    file_path = os.path.join("temp.wav")
+    file_path = "temp.wav"
     with open(file_path, "wb") as f:
         f.write(uploaded_file.getbuffer())
 
     show_visuals(file_path)
-    features = extract_features(file_path)
-    prediction = model.predict(features)
-
-    label = "Drone" if prediction[0][0] > 0.5 else "Background Noise"
-    st.success(f"🧠 Prediction: **{label}** (Confidence: {prediction[0][0]:.2f})")
+    predict_and_display(file_path)
 else:
     st.info("Waiting for file upload...")
 
-# Optional: Audio Recorder (local only)
+# ✔️ Optional: Record from Microphone
 if st.checkbox("Use Microphone (local only)"):
     try:
         import sounddevice as sd
 
-        duration = 5  # seconds
+        duration = 5
         fs = 16000
 
         st.write("🎙️ Click the button to record")
@@ -83,9 +99,6 @@ if st.checkbox("Use Microphone (local only)"):
             st.write("Recording complete")
 
             show_visuals("mic_input.wav")
-            features = extract_features("mic_input.wav")
-            prediction = model.predict(features)
-            label = "Drone" if prediction[0][0] > 0.5 else "Background Noise"
-            st.success(f"🧠 Prediction: **{label}** (Confidence: {prediction[0][0]:.2f})")
+            predict_and_display("mic_input.wav")
     except Exception as e:
         st.warning(f"Microphone access failed: {e}")
