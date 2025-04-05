@@ -4,37 +4,32 @@ import librosa
 import librosa.display
 import matplotlib.pyplot as plt
 import tensorflow as tf
-import os
-import soundfile as sf
 
-# Streamlit Title
+# Streamlit title
 st.title("🚁 Drone Detection using Audio Classification")
 
-# Load Model
+# Load the model
 @st.cache_resource
 def load_model():
-    model = tf.keras.models.load_model("drone_cnn_model.h5")
-    return model
+    return tf.keras.models.load_model("drone_cnn_model.h5")
 
 model = load_model()
 
-# ✔️ Correct Feature Extraction
+# Feature extraction
 def extract_features(file_path):
     y, sr = librosa.load(file_path, sr=16000)
     mfcc = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=40)
 
-    # Pad or truncate to ensure shape (40, 32)
     if mfcc.shape[1] < 32:
         pad_width = 32 - mfcc.shape[1]
         mfcc = np.pad(mfcc, ((0, 0), (0, pad_width)), mode='constant')
     else:
         mfcc = mfcc[:, :32]
 
-    # Final reshape: (1, 40, 32, 1)
-    mfcc = mfcc.reshape(1, 40, 32, 1)
+    mfcc = mfcc[np.newaxis, ..., np.newaxis]  # Shape: (1, 40, 32, 1)
     return mfcc
 
-# ✔️ Visualization
+# Visualization
 def show_visuals(file_path):
     y, sr = librosa.load(file_path, sr=16000)
 
@@ -50,26 +45,31 @@ def show_visuals(file_path):
     fig2.colorbar(img, ax=ax2, format="%+2.0f dB")
     st.pyplot(fig2)
 
-# ✔️ Prediction Logic
+# Prediction
 def predict_and_display(file_path):
     features = extract_features(file_path)
-    st.write("✅ Feature shape:", features.shape)
+    st.write(f"✅ Extracted features shape: {features.shape}")
 
-    prediction = model.predict(features)
+    try:
+        prediction = model.predict(features)
+        st.write(f"📊 Model raw prediction: {prediction}")
 
-    if prediction.shape[1] == 2:
-        label_map = ["Background Noise", "Drone"]
-        predicted_index = np.argmax(prediction)
-        label = label_map[predicted_index]
-        confidence = prediction[0][predicted_index]
-    else:
-        confidence = prediction[0][0]
-        label = "Drone" if confidence > 0.5 else "Background Noise"
-        confidence = confidence if confidence > 0.5 else 1 - confidence
+        # Handle binary or categorical output
+        if prediction.shape[1] == 2:
+            label_map = ["Background Noise", "Drone"]
+            predicted_index = np.argmax(prediction)
+            label = label_map[predicted_index]
+            confidence = prediction[0][predicted_index]
+        else:
+            confidence = prediction[0][0]
+            label = "Drone" if confidence > 0.5 else "Background Noise"
+            confidence = confidence if confidence > 0.5 else 1 - confidence
 
-    st.success(f"🧠 Prediction: **{label}** (Confidence: {confidence*100:.2f}%)")
+        st.success(f"🧠 Prediction: **{label}** (Confidence: {confidence * 100:.2f}%)")
+    except Exception as e:
+        st.error(f"❌ Error during prediction: {e}")
 
-# ✔️ File Upload
+# File uploader
 uploaded_file = st.file_uploader("Upload a WAV file", type=["wav"])
 
 if uploaded_file:
@@ -80,25 +80,4 @@ if uploaded_file:
     show_visuals(file_path)
     predict_and_display(file_path)
 else:
-    st.info("Waiting for file upload...")
-
-# ✔️ Optional: Record from Microphone
-if st.checkbox("Use Microphone (local only)"):
-    try:
-        import sounddevice as sd
-
-        duration = 5
-        fs = 16000
-
-        st.write("🎙️ Click the button to record")
-        if st.button("Record Now"):
-            st.write("Recording...")
-            audio = sd.rec(int(duration * fs), samplerate=fs, channels=1)
-            sd.wait()
-            sf.write("mic_input.wav", audio, fs)
-            st.write("Recording complete")
-
-            show_visuals("mic_input.wav")
-            predict_and_display("mic_input.wav")
-    except Exception as e:
-        st.warning(f"Microphone access failed: {e}")
+    st.info("Please upload a .wav audio file to begin.")
