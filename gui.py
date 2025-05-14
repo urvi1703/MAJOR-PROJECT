@@ -20,24 +20,24 @@ audio_file = None
 labels = ["Background", "Drone"]  
 
 # Load DRDO logo
-try:
-    logo_image = Image.open('drdo_logo.png')
-    logo_image = logo_image.resize((100, 100))
-    logo_photo = ImageTk.PhotoImage(logo_image)
-    logo_label = tk.Label(root, image=logo_photo, bg='white')
-    logo_label.pack(pady=10)
-except:
-    print("DRDO logo not found. Make sure 'drdo_logo.png' is in the same folder.")
+# try:
+#     logo_image = Image.open('drdo_logo.png')
+#     logo_image = logo_image.resize((100, 100))
+#     logo_photo = ImageTk.PhotoImage(logo_image)
+#     logo_label = tk.Label(root, image=logo_photo, bg='white')
+#     logo_label.pack(pady=10)
+# except:
+#     print("DRDO logo not found. Make sure 'drdo_logo.png' is in the same folder.")
 
-# Add SSPL and DRDO Name
-title_label = tk.Label(
-    root,
-    text="SOLID STATE PHYSICS LABORATORY (SSPL)\nDEFENCE RESEARCH AND DEVELOPMENT ORGANISATION (DRDO)",
-    font=("Times New Roman", 16, "bold"),
-    bg='#f0f4f7',
-    fg='black',
-    justify='center'
-)
+# # Add SSPL and DRDO Name
+# title_label = tk.Label(
+#     root,
+#     text="SOLID STATE PHYSICS LABORATORY (SSPL)\nDEFENCE RESEARCH AND DEVELOPMENT ORGANISATION (DRDO)",
+#     font=("Times New Roman", 16, "bold"),
+#     bg='#f0f4f7',
+#     fg='black',
+#     justify='center'
+# )
 heading_label = tk.Label(
     root,
     text="Drone Classification and Detection using Acoustic Signature",
